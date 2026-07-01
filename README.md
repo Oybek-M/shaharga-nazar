@@ -14,6 +14,18 @@ Then open the printed local URL in a browser.
 
 npm test
 
+## Pages
+
+- `index.html` — 3D live dashboard (buses, simulated AI detection, glassmorphic stats panels)
+- `upload.html` — upload a photo/video and get mock AI-analyzed road-issue results
+- `cameras.html` — camera monitoring grid (demo feeds; real camera access not yet authorized)
+- `issues.html` — list of detected road issues (type, mock photo, GPS, severity) with type filters
+
+All AI/camera/GPS data on these pages is currently simulated. `src/ai/AnalysisService.js`
+and `src/ai/DetectionService.js` are the two swap points for plugging in a real trained
+model later via an API call — everything else in the UI is built against their existing
+return shapes and won't need to change.
+
 ## Notes
 
 - AI detection is simulated (`src/ai/DetectionService.js`). It is designed as a single
