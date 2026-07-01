@@ -2,6 +2,7 @@ export const ISSUE_TYPES = {
   POTHOLE: { key: 'pothole', label: 'Pothole (Detected)', color: 0xe63946 },
   CRACKED_ASPHALT: { key: 'cracked_asphalt', label: 'Cracked Asphalt', color: 0xf4a261 },
   STREETLIGHT: { key: 'streetlight', label: 'Non-functioning Street Light', color: 0xe9c46a },
+  ROAD_DEBRIS: { key: 'road_debris', label: 'Road Debris', color: 0x8b5cf6 },
 };
 
 export const MARKERS = [
