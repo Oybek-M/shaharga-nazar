@@ -761,6 +761,25 @@ git commit -m "Add articulated bus with route following and scan beam"
 
 ---
 
+**Post-Task-7 correction (found in code review, applied in commit `6f8b0ea`):** the code above assumed `Object3D.lookAt()` orients the local `-Z` axis toward the target (the camera convention). For non-Camera/Light objects (like this `Group`), Three.js actually orients local `+Z` toward the target instead. This was fixed by moving `frontSegment`/`beam` to the `+Z` local side (and `rearSegment` to `-Z`), flipping the beam's tilt sign, and replacing the Euler-angle-based `getBeamWorldPosition` with a quaternion-based direction transform:
+
+```js
+import { Group, Mesh, BoxGeometry, CylinderGeometry, ConeGeometry, MeshStandardMaterial, MeshBasicMaterial, DoubleSide, Vector3 } from 'three';
+// ... frontSegment.position.set(0, 1.1, 2.2); rearSegment.position.set(0, 1.1, -2.6);
+// ... beam.rotation.x = -0.9; beam.position.set(0, 2.3, 2.5);
+
+const FORWARD_AXIS = new Vector3(0, 0, 1);
+function getBeamWorldPosition(distance = 9) {
+  const direction = FORWARD_AXIS.clone().applyQuaternion(group.quaternion);
+  return {
+    x: group.position.x + direction.x * distance,
+    z: group.position.z + direction.z * distance,
+  };
+}
+```
+
+Any later task reading this plan should use the corrected version above, not the original snippet.
+
 ## Task 8: Bloom post-processing (`src/scene/PostProcessing.js`)
 
 **Files:**
