@@ -1,4 +1,4 @@
-import { Group, Mesh, BoxGeometry, CylinderGeometry, ConeGeometry, MeshStandardMaterial, MeshBasicMaterial, DoubleSide } from 'three';
+import { Group, Mesh, BoxGeometry, CylinderGeometry, ConeGeometry, MeshStandardMaterial, MeshBasicMaterial, DoubleSide, Vector3 } from 'three';
 import { createRouteCurve, getPointOnRoute } from './Route.js';
 
 const BUS_COLOR = 0xe2e8f0;
@@ -11,9 +11,9 @@ export function createBus({ routeId, speed = 0.03, offset = 0 }) {
   const bodyMaterial = new MeshStandardMaterial({ color: BUS_COLOR, roughness: 0.4, metalness: 0.3 });
 
   const frontSegment = new Mesh(new BoxGeometry(2.6, 2.2, 5), bodyMaterial);
-  frontSegment.position.set(0, 1.1, -2.2);
+  frontSegment.position.set(0, 1.1, 2.2);
   const rearSegment = new Mesh(new BoxGeometry(2.6, 2.2, 4), bodyMaterial);
-  rearSegment.position.set(0, 1.1, 2.6);
+  rearSegment.position.set(0, 1.1, -2.6);
   const connector = new Mesh(new CylinderGeometry(1.1, 1.1, 1.2, 12), bodyMaterial);
   connector.rotation.z = Math.PI / 2;
   connector.position.set(0, 1.0, 0.5);
@@ -25,8 +25,8 @@ export function createBus({ routeId, speed = 0.03, offset = 0 }) {
     beamGeometry,
     new MeshBasicMaterial({ color: BEAM_COLOR, transparent: true, opacity: 0.15, side: DoubleSide, depthWrite: false })
   );
-  beam.rotation.x = 0.9;
-  beam.position.set(0, 2.3, -2.5);
+  beam.rotation.x = -0.9;
+  beam.position.set(0, 2.3, 2.5);
   group.add(beam);
 
   let t = offset;
@@ -38,11 +38,13 @@ export function createBus({ routeId, speed = 0.03, offset = 0 }) {
     group.lookAt(position.x + tangent.x, 0, position.z + tangent.z);
   }
 
+  const FORWARD_AXIS = new Vector3(0, 0, 1);
+
   function getBeamWorldPosition(distance = 9) {
-    const theta = group.rotation.y;
+    const direction = FORWARD_AXIS.clone().applyQuaternion(group.quaternion);
     return {
-      x: group.position.x - Math.sin(theta) * distance,
-      z: group.position.z - Math.cos(theta) * distance,
+      x: group.position.x + direction.x * distance,
+      z: group.position.z + direction.z * distance,
     };
   }
 
