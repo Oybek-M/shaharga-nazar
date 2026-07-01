@@ -1,5 +1,3 @@
-import { createAnalysisService } from '../ai/AnalysisService.js';
-
 export function mountUploadPanel(root, analysisService) {
   // Create main panel container
   const panel = document.createElement('div');
