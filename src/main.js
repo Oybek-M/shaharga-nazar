@@ -1,5 +1,6 @@
 import { Scene, PerspectiveCamera, WebGLRenderer } from 'three';
 import { createCity } from './scene/City.js';
+import { createBus } from './scene/Bus.js';
 
 const canvas = document.getElementById('scene-canvas');
 
@@ -13,7 +14,11 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 
 createCity(scene);
 
+const bus = createBus({ routeId: 'route-a', speed: 0.03, offset: 0 });
+scene.add(bus.object);
+
 function animate() {
+  bus.update(0.016);
   renderer.render(scene, camera);
   requestAnimationFrame(animate);
 }
