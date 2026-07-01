@@ -35,3 +35,56 @@ html, body {
   font-weight: 600;
   transform: translate(-50%, -140%);
 }
+
+.panel {
+  position: absolute;
+  pointer-events: auto;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  padding: 14px 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+#top-bar {
+  top: 16px; left: 16px; right: 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 48px;
+}
+#top-bar h1 { font-size: 16px; margin: 0; font-weight: 600; letter-spacing: 0.3px; }
+
+#left-panel { top: 80px; left: 16px; width: 260px; }
+#left-panel .stat-row { display: flex; justify-content: space-between; font-size: 13px; margin: 6px 0; }
+#left-panel .stat-row .value { font-weight: 700; color: var(--accent-blue); }
+#left-panel .stat-row.priority .value { color: #ef4444; }
+
+#detections-list h3 { font-size: 12px; text-transform: uppercase; color: var(--text-muted); margin: 12px 0 6px; }
+.detection-item {
+  display: flex; gap: 8px; align-items: center;
+  padding: 6px; border-radius: 8px; margin-bottom: 6px;
+  background: rgba(255,255,255,0.03);
+}
+.detection-thumb {
+  width: 48px; height: 32px; border-radius: 4px;
+  background: linear-gradient(135deg, #1e293b, #334155);
+  border: 1px solid var(--panel-border);
+  flex-shrink: 0;
+}
+.detection-info { font-size: 11px; color: var(--text-muted); }
+.detection-info strong { display: block; color: var(--text-primary); font-size: 12px; }
+
+#right-panel { top: 80px; right: 16px; width: 200px; display: flex; flex-direction: column; gap: 10px; }
+#minimap { width: 100%; height: 110px; border-radius: 8px; background: rgba(30,41,59,0.6); }
+#weather-row { display: flex; align-items: center; justify-content: space-between; font-size: 13px; }
+
+#bottom-left-panel { bottom: 16px; left: 16px; display: flex; flex-direction: column; gap: 4px; width: 220px; }
+.mode-button {
+  pointer-events: auto;
+  display: flex; align-items: center; gap: 8px;
+  background: transparent; border: none; color: var(--text-primary);
+  padding: 8px 6px; border-radius: 8px; cursor: pointer; font-size: 13px; text-align: left;
+}
+.mode-button:hover { background: rgba(255,255,255,0.06); }
+.mode-button.active { background: rgba(56,189,248,0.15); color: var(--accent-blue); }

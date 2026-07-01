@@ -4,6 +4,10 @@ import { createCity } from './scene/City.js';
 import { createBus } from './scene/Bus.js';
 import { createPostProcessing } from './scene/PostProcessing.js';
 import { spawnMarker3D } from './ui/Marker3D.js';
+import { createStore } from './store.js';
+import { mountLeftPanel } from './ui/LeftPanel.js';
+import { mountRightPanel } from './ui/RightPanel.js';
+import { mountBottomLeftPanel } from './ui/BottomLeftPanel.js';
 
 const canvas = document.getElementById('scene-canvas');
 
@@ -22,6 +26,25 @@ labelRenderer.domElement.style.position = 'absolute';
 labelRenderer.domElement.style.top = '0';
 labelRenderer.domElement.style.pointerEvents = 'none';
 uiRoot.appendChild(labelRenderer.domElement);
+
+const topBar = document.createElement('div');
+topBar.id = 'top-bar';
+topBar.className = 'panel';
+topBar.innerHTML = '<h1>Andijon Public Transport & Road AI Monitoring System</h1>';
+uiRoot.appendChild(topBar);
+
+const store = createStore({
+  systemStatus: 'OPTIMIZED',
+  activeBuses: 1,
+  issuesDetected: 0,
+  priorityIssues: 0,
+  detections: [],
+  mode: 'live',
+});
+
+mountLeftPanel(uiRoot, store);
+mountRightPanel(uiRoot);
+mountBottomLeftPanel(uiRoot, store);
 
 const { composer, setSize } = createPostProcessing(renderer, scene, camera);
 
