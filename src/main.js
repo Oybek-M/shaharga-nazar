@@ -9,6 +9,7 @@ import { createStore } from './store.js';
 import { mountLeftPanel } from './ui/LeftPanel.js';
 import { mountRightPanel } from './ui/RightPanel.js';
 import { mountBottomLeftPanel } from './ui/BottomLeftPanel.js';
+import { mountTopBar } from './ui/Nav.js';
 
 function isWebglAvailable() {
   try {
@@ -58,11 +59,7 @@ function init() {
   const { composer, setSize } = createPostProcessing(renderer, scene, camera);
   const detectionService = createDetectionService();
 
-  const topBar = document.createElement('div');
-  topBar.id = 'top-bar';
-  topBar.className = 'panel';
-  topBar.innerHTML = '<h1>Andijon Public Transport & Road AI Monitoring System</h1>';
-  uiRoot.appendChild(topBar);
+  mountTopBar(uiRoot, 'dashboard', 'Andijon Public Transport & Road AI Monitoring System');
 
   const store = createStore({
     systemStatus: 'OPTIMIZED',
