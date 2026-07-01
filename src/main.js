@@ -1,6 +1,7 @@
 import { Scene, PerspectiveCamera, WebGLRenderer } from 'three';
 import { createCity } from './scene/City.js';
 import { createBus } from './scene/Bus.js';
+import { createPostProcessing } from './scene/PostProcessing.js';
 
 const canvas = document.getElementById('scene-canvas');
 
@@ -12,6 +13,8 @@ camera.lookAt(0, 0, 0);
 const renderer = new WebGLRenderer({ canvas, antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 
+const { composer, setSize } = createPostProcessing(renderer, scene, camera);
+
 createCity(scene);
 
 const bus = createBus({ routeId: 'route-a', speed: 0.03, offset: 0 });
@@ -19,7 +22,7 @@ scene.add(bus.object);
 
 function animate() {
   bus.update(0.016);
-  renderer.render(scene, camera);
+  composer.render();
   requestAnimationFrame(animate);
 }
 animate();
@@ -28,4 +31,5 @@ window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
+  setSize(window.innerWidth, window.innerHeight);
 });
