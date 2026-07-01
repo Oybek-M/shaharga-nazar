@@ -3,6 +3,7 @@ import { createRouteCurve, getPointOnRoute } from './Route.js';
 
 const BUS_COLOR = 0xe2e8f0;
 const BEAM_COLOR = 0x38bdf8;
+const FORWARD_AXIS = new Vector3(0, 0, 1);
 
 export function createBus({ routeId, speed = 0.03, offset = 0 }) {
   const curve = createRouteCurve(routeId);
@@ -37,8 +38,6 @@ export function createBus({ routeId, speed = 0.03, offset = 0 }) {
     group.position.set(position.x, 0, position.z);
     group.lookAt(position.x + tangent.x, 0, position.z + tangent.z);
   }
-
-  const FORWARD_AXIS = new Vector3(0, 0, 1);
 
   function getBeamWorldPosition(distance = 9) {
     const direction = FORWARD_AXIS.clone().applyQuaternion(group.quaternion);
