@@ -114,6 +114,15 @@ body.content-page #ui-root {
 }
 body.content-page #top-bar { position: static; }
 
+/* Content pages have no 3D scene behind them, so the translucent glass panel
+   look (tuned for the dashboard's blurred canvas) reads as low-contrast here.
+   Use a more opaque, solid-ish panel background instead for legibility. */
+body.content-page .panel {
+  background: rgba(30, 41, 59, 0.92);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
 .upload-panel { width: 100%; }
 .upload-dropzone {
   padding: 40px 20px;
