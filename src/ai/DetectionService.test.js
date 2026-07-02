@@ -4,7 +4,7 @@ import { createDetectionService } from './DetectionService.js';
 describe('createDetectionService', () => {
   it('returns a detection for a marker within range, with confidence in [90,99]', () => {
     const service = createDetectionService({ random: () => 0.5 });
-    const results = service.detect('route-a', { x: 12, z: -4 });
+    const results = service.detect('route-a', { x: 3.5, z: -40 });
     expect(results).toHaveLength(1);
     expect(results[0]).toMatchObject({ markerId: 'm1', type: 'pothole' });
     expect(results[0].confidence).toBeGreaterThanOrEqual(90);
@@ -13,16 +13,16 @@ describe('createDetectionService', () => {
 
   it('does not re-trigger the same marker twice in a row', () => {
     const service = createDetectionService({ random: () => 0.5 });
-    service.detect('route-a', { x: 12, z: -4 });
-    const second = service.detect('route-a', { x: 12, z: -4 });
+    service.detect('route-a', { x: 3.5, z: -40 });
+    const second = service.detect('route-a', { x: 3.5, z: -40 });
     expect(second).toHaveLength(0);
   });
 
   it('re-triggers a marker after reset() is called for it', () => {
     const service = createDetectionService({ random: () => 0.5 });
-    service.detect('route-a', { x: 12, z: -4 });
+    service.detect('route-a', { x: 3.5, z: -40 });
     service.reset('m1');
-    const result = service.detect('route-a', { x: 12, z: -4 });
+    const result = service.detect('route-a', { x: 3.5, z: -40 });
     expect(result).toHaveLength(1);
   });
 

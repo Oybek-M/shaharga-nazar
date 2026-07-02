@@ -1,4 +1,4 @@
-import { Scene, PerspectiveCamera, WebGLRenderer, Clock, ACESFilmicToneMapping, SRGBColorSpace } from 'three';
+import { Scene, PerspectiveCamera, WebGLRenderer, Clock, ACESFilmicToneMapping, SRGBColorSpace, PCFSoftShadowMap } from 'three';
 import { CSS2DRenderer } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
 import { createCity } from './scene/City.js';
 import { createBus } from './scene/Bus.js';
@@ -7,7 +7,7 @@ import { spawnMarker3D } from './ui/Marker3D.js';
 import { createDetectionService } from './ai/DetectionService.js';
 import { createStore } from './store.js';
 import { mountLeftPanel } from './ui/LeftPanel.js';
-import { mountRightPanel } from './ui/RightPanel.js';
+import { mountRightPanel, ROUTE_COLORS } from './ui/RightPanel.js';
 import { mountBottomLeftPanel } from './ui/BottomLeftPanel.js';
 import { mountTopBar } from './ui/Nav.js';
 
@@ -21,7 +21,7 @@ function isWebglAvailable() {
 }
 
 function showWebglFallback() {
-  document.body.innerHTML = '<p style="color:#e2e8f0;text-align:center;margin-top:40vh;font-family:sans-serif;">WebGL is not available in this browser.</p>';
+  document.body.innerHTML = '<p style="color:#e2e8f0;text-align:center;margin-top:40vh;font-family:sans-serif;">Ushbu brauzerda WebGL mavjud emas.</p>';
 }
 
 function init() {
@@ -29,15 +29,18 @@ function init() {
   const uiRoot = document.getElementById('ui-root');
 
   const scene = new Scene();
-  const camera = new PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 500);
-  camera.position.set(0, 55, 70);
-  camera.lookAt(0, 0, 0);
+  const camera = new PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 600);
+  // Look down the main avenue (Z axis) so the buses recede into the distance.
+  camera.position.set(0, 44, 74);
+  camera.lookAt(0, 1, -10);
 
   const renderer = new WebGLRenderer({ canvas, antialias: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.toneMapping = ACESFilmicToneMapping;
   renderer.outputColorSpace = SRGBColorSpace;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = PCFSoftShadowMap;
 
   const labelRenderer = new CSS2DRenderer();
   labelRenderer.setSize(window.innerWidth, window.innerHeight);
@@ -48,21 +51,24 @@ function init() {
 
   createCity(scene);
 
+  // Four buses on the main avenue, evenly spaced at one speed so they keep a
+  // constant gap (verified min centre distance ~7) and never touch. The crossing
+  // street carries no traffic, so nothing conflicts at the intersection.
   const buses = [
-    createBus({ routeId: 'route-a', speed: 0.028, offset: 0 }),
-    createBus({ routeId: 'route-a', speed: 0.028, offset: 0.5 }),
-    createBus({ routeId: 'route-b', speed: 0.022, offset: 0.2 }),
-    createBus({ routeId: 'route-c', speed: 0.025, offset: 0.7 }),
+    createBus({ routeId: 'route-a', speed: 0.02, offset: 0 }),
+    createBus({ routeId: 'route-a', speed: 0.02, offset: 0.25 }),
+    createBus({ routeId: 'route-a', speed: 0.02, offset: 0.5 }),
+    createBus({ routeId: 'route-a', speed: 0.02, offset: 0.75 }),
   ];
   buses.forEach((bus) => scene.add(bus.object));
 
   const { composer, setSize } = createPostProcessing(renderer, scene, camera);
   const detectionService = createDetectionService();
 
-  mountTopBar(uiRoot, 'dashboard', 'Andijon Public Transport & Road AI Monitoring System');
+  mountTopBar(uiRoot, 'dashboard', 'Andijon Jamoat Transporti va Yo\'l AI Monitoring Tizimi');
 
   const store = createStore({
-    systemStatus: 'OPTIMIZED',
+    systemStatus: 'OPTIMAL',
     activeBuses: buses.length,
     issuesDetected: 0,
     priorityIssues: 0,
@@ -71,19 +77,21 @@ function init() {
   });
 
   mountLeftPanel(uiRoot, store);
-  mountRightPanel(uiRoot);
+  const rightPanel = mountRightPanel(uiRoot);
   mountBottomLeftPanel(uiRoot, store);
 
   const clock = new Clock();
+  let frame = 0;
 
   function handleDetection(result) {
     spawnMarker3D(scene, result, (markerId) => detectionService.reset(markerId));
     const state = store.getState();
+    const hex = `#${result.color.toString(16).padStart(6, '0')}`;
     store.setState({
       issuesDetected: state.issuesDetected + 1,
       priorityIssues: result.type === 'pothole' ? state.priorityIssues + 1 : state.priorityIssues,
       detections: [
-        { label: result.label, confidence: result.confidence, id: `${result.markerId}-${Date.now()}` },
+        { label: result.label, confidence: result.confidence, color: hex, icon: result.icon, id: `${result.markerId}-${Date.now()}` },
         ...state.detections,
       ].slice(0, 6),
     });
@@ -91,12 +99,24 @@ function init() {
 
   function animate() {
     const delta = clock.getDelta();
+    frame += 1;
 
     for (const bus of buses) {
       bus.update(delta);
       const beamPos = bus.getBeamWorldPosition();
       const results = detectionService.detect(bus.routeId, beamPos);
       results.forEach(handleDetection);
+    }
+
+    // Refresh the minimap a few times a second — no need to redraw every frame.
+    if (frame % 5 === 0) {
+      rightPanel.drawMinimap(
+        buses.map((bus) => ({
+          x: bus.object.position.x,
+          z: bus.object.position.z,
+          color: ROUTE_COLORS[bus.routeId] || '#e2e8f0',
+        }))
+      );
     }
 
     composer.render();

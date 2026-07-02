@@ -1,14 +1,15 @@
 import { CatmullRomCurve3, Vector3 } from 'three';
 
+// A single four-way intersection. `route-a` is the main avenue (buses run here);
+// `route-b` is the crossing street (decorative — no buses cross the box, so the
+// traffic can never collide). Each is a closed path so a bus runs the length and
+// returns on the opposite right-hand lane (see the lane offset in Bus.js).
 export const ROUTES = {
   'route-a': [
-    [-40, 0, -4], [-10, 0, -4], [12, 0, -4], [40, 0, -4],
+    [0, 0, -70], [0, 0, -24], [0, 0, 24], [0, 0, 70],
   ],
   'route-b': [
-    [-10, 0, -30], [-10, 0, 0], [5, 0, 22], [5, 0, 40],
-  ],
-  'route-c': [
-    [-30, 0, 3], [0, 0, 3], [30, 0, 3], [45, 0, 3],
+    [-55, 0, 0], [-18, 0, 0], [18, 0, 0], [55, 0, 0],
   ],
 };
 

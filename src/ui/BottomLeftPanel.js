@@ -1,7 +1,7 @@
 const MODES = [
-  { id: 'live', label: '🔴 Live Mode' },
-  { id: 'heatmap', label: '🔥 Heatmap' },
-  { id: 'playback', label: '▶ Simulation Playback' },
+  { id: 'live', label: '🔴 Jonli rejim' },
+  { id: 'heatmap', label: '🔥 Issiqlik xaritasi' },
+  { id: 'playback', label: '▶ Simulyatsiya ijrosi' },
 ];
 
 export function mountBottomLeftPanel(root, store) {

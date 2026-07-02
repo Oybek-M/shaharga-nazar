@@ -23,17 +23,36 @@ html, body {
 
 #ui-root { position: absolute; inset: 0; pointer-events: none; }
 
-.marker-label {
+.marker-tag {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 8px;
+  gap: 7px;
+  padding: 3px 12px 3px 3px;
   border-radius: 999px;
-  font-size: 11px;
   white-space: nowrap;
-  color: #0b1220;
+  background: rgba(15, 23, 42, 0.82);
+  border: 1px solid var(--tag-color);
+  box-shadow: 0 0 14px -2px var(--tag-color), 0 4px 10px rgba(0, 0, 0, 0.4);
+  transform: translate(-50%, -150%);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.marker-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--tag-color);
+  font-size: 13px;
+  flex-shrink: 0;
+}
+.marker-text {
+  font-size: 12px;
   font-weight: 600;
-  transform: translate(-50%, -140%);
+  color: #f1f5f9;
+  letter-spacing: 0.2px;
 }
 
 .panel {
@@ -54,6 +73,19 @@ html, body {
   height: 48px;
 }
 #top-bar h1 { font-size: 16px; margin: 0; font-weight: 600; letter-spacing: 0.3px; }
+.top-bar-title { display: flex; align-items: center; gap: 14px; min-width: 0; }
+.home-link {
+  pointer-events: auto;
+  flex-shrink: 0;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--panel-border);
+  white-space: nowrap;
+}
+.home-link:hover { background: rgba(255,255,255,0.06); color: var(--accent-blue); }
 
 #left-panel { top: 80px; left: 16px; width: 260px; }
 #left-panel .stat-row { display: flex; justify-content: space-between; font-size: 13px; margin: 6px 0; }
@@ -67,17 +99,42 @@ html, body {
   background: rgba(255,255,255,0.03);
 }
 .detection-thumb {
+  position: relative;
   width: 48px; height: 32px; border-radius: 4px;
-  background: linear-gradient(135deg, #1e293b, #334155);
+  background: linear-gradient(135deg, #0f1b30, #24344f 70%, #3b4d6b);
   border: 1px solid var(--panel-border);
   flex-shrink: 0;
+  overflow: hidden;
+}
+.detection-bbox {
+  position: absolute;
+  left: 30%; top: 28%;
+  width: 46%; height: 46%;
+  border: 1.5px solid;
+  border-radius: 2px;
+  box-shadow: 0 0 6px -1px currentColor;
+}
+.detection-bbox-tag {
+  position: absolute;
+  top: -8px; left: -1px;
+  font-size: 7px;
+  line-height: 8px;
+  padding: 0 2px;
+  border-radius: 2px;
+  color: #0b1220;
 }
 .detection-info { font-size: 11px; color: var(--text-muted); }
 .detection-info strong { display: block; color: var(--text-primary); font-size: 12px; }
 
-#right-panel { top: 80px; right: 16px; width: 200px; display: flex; flex-direction: column; gap: 10px; }
-#minimap { width: 100%; height: 110px; border-radius: 8px; background: rgba(30,41,59,0.6); }
-#weather-row { display: flex; align-items: center; justify-content: space-between; font-size: 13px; }
+#right-panel { top: 80px; right: 16px; width: 210px; display: flex; flex-direction: column; gap: 8px; }
+.panel-caption { font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); }
+#minimap { width: 100%; height: auto; border-radius: 8px; background: rgba(30,41,59,0.6); border: 1px solid var(--panel-border); display: block; }
+#trend-chart { width: 100%; height: 54px; display: block; }
+#trend-chart .trend { fill: none; stroke-width: 1.6; vector-effect: non-scaling-stroke; opacity: 0.9; }
+#trend-chart .trend-1 { stroke: #22d3ee; }
+#trend-chart .trend-2 { stroke: #f472b6; }
+#trend-chart .trend-3 { stroke: #fbbf24; }
+#weather-row { display: flex; align-items: center; justify-content: space-between; font-size: 13px; margin-top: 2px; }
 
 #bottom-left-panel { bottom: 16px; left: 16px; display: flex; flex-direction: column; gap: 4px; width: 220px; }
 .mode-button {
@@ -118,6 +175,8 @@ body.content-page #top-bar { position: static; }
    look (tuned for the dashboard's blurred canvas) reads as low-contrast here.
    Use a more opaque, solid-ish panel background instead for legibility. */
 body.content-page .panel {
+  position: relative;
+  inset: auto;
   background: rgba(30, 41, 59, 0.92);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
@@ -149,6 +208,25 @@ body.content-page .panel {
 .upload-file-chip {
   display: inline-block;
 }
+.upload-clear-btn {
+  pointer-events: auto;
+  display: inline-block;
+  margin-top: 12px;
+  margin-right: 10px;
+  padding: 10px 12px;
+  background: transparent;
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  color: var(--text-muted);
+  font-size: 12px;
+  cursor: pointer;
+}
+.upload-clear-btn:hover {
+  color: #ef4444;
+  border-color: rgba(239, 68, 68, 0.4);
+  background: rgba(239, 68, 68, 0.08);
+}
+
 .upload-analyze-btn {
   pointer-events: auto;
   padding: 10px 20px;

@@ -4,7 +4,7 @@ import { mountUploadPanel } from './ui/UploadPanel.js';
 import { createAnalysisService } from './ai/AnalysisService.js';
 
 const uiRoot = document.getElementById('ui-root');
-mountTopBar(uiRoot, 'upload', 'Upload & Analyze');
+mountTopBar(uiRoot, 'upload', 'Yuklash va tahlil');
 
 const analysisService = createAnalysisService();
 mountUploadPanel(uiRoot, analysisService);

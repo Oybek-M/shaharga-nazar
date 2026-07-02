@@ -2,27 +2,27 @@
 const MOCK_CAMERAS = [
   {
     id: 'bus-1-route-a',
-    name: 'Bus 1 — Route A',
-    route: 'Route A',
-    lastUpdated: new Date(Date.now() - 5000).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+    name: '1-avtobus — A yo\'nalishi',
+    route: 'A yo\'nalishi',
+    lastUpdated: new Date(Date.now() - 5000).toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
   },
   {
     id: 'bus-2-route-a',
-    name: 'Bus 2 — Route A',
-    route: 'Route A',
-    lastUpdated: new Date(Date.now() - 12000).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+    name: '2-avtobus — A yo\'nalishi',
+    route: 'A yo\'nalishi',
+    lastUpdated: new Date(Date.now() - 12000).toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
   },
   {
     id: 'bus-3-route-b',
-    name: 'Bus 3 — Route B',
-    route: 'Route B',
-    lastUpdated: new Date(Date.now() - 8000).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+    name: '3-avtobus — B yo\'nalishi',
+    route: 'B yo\'nalishi',
+    lastUpdated: new Date(Date.now() - 8000).toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
   },
   {
     id: 'bus-4-route-c',
-    name: 'Bus 4 — Route C',
-    route: 'Route C',
-    lastUpdated: new Date(Date.now() - 3000).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+    name: '4-avtobus — C yo\'nalishi',
+    route: 'C yo\'nalishi',
+    lastUpdated: new Date(Date.now() - 3000).toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
   },
 ];
 
@@ -33,9 +33,9 @@ function renderCameraTileHtml(camera) {
       <div class="camera-info">
         <div class="camera-header">
           <h3 class="camera-name">${camera.name}</h3>
-          <span class="demo-badge">Demo Feed</span>
+          <span class="demo-badge">Demo rejim</span>
         </div>
-        <p class="camera-timestamp">Last updated: ${camera.lastUpdated}</p>
+        <p class="camera-timestamp">Yangilangan: ${camera.lastUpdated}</p>
       </div>
     </div>
   `;
@@ -48,7 +48,7 @@ export function mountCameraGrid(root) {
   container.innerHTML = `
     <div class="camera-grid-notice">
       <p class="notice-icon">⚠️</p>
-      <p class="notice-text">Live camera feeds have not been authorized yet. The feeds shown below are <strong>demonstration data only</strong> and should not be relied upon for real-time monitoring.</p>
+      <p class="notice-text">Jonli kamera oqimlariga hali ruxsat berilmagan. Quyida ko'rsatilgan oqimlar <strong>faqat namunaviy ma'lumot</strong> bo'lib, real vaqtda kuzatish uchun ishlatilmasligi kerak.</p>
     </div>
     <div class="camera-grid">
       ${MOCK_CAMERAS.map(renderCameraTileHtml).join('')}

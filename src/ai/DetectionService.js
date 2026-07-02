@@ -21,6 +21,7 @@ export function createDetectionService({ random = Math.random } = {}) {
         type: marker.type.key,
         label: marker.type.label,
         color: marker.type.color,
+        icon: marker.type.icon,
         confidence,
       });
     }

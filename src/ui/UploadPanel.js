@@ -18,10 +18,10 @@ export function mountUploadPanel(root, analysisService) {
     <div style="text-align: center; pointer-events: none;">
       <div style="font-size: 32px; margin-bottom: 8px;">📤</div>
       <div style="color: var(--text-primary); font-size: 14px; font-weight: 600; margin-bottom: 4px;">
-        Click to upload or drag and drop
+        Yuklash uchun bosing yoki faylni shu yerga tashlang
       </div>
       <div style="color: var(--text-muted); font-size: 12px;">
-        Supported formats: images (PNG, JPG, etc.) and videos (MP4, WebM, etc.)
+        Qo'llab-quvvatlanadigan formatlar: rasmlar (PNG, JPG va h.k.) va videolar (MP4, WebM va h.k.)
       </div>
     </div>
   `;
@@ -32,10 +32,17 @@ export function mountUploadPanel(root, analysisService) {
   previewArea.style.display = 'none';
   previewArea.style.marginTop = '12px';
 
+  // Clear/remove selected file button
+  const clearBtn = document.createElement('button');
+  clearBtn.className = 'upload-clear-btn';
+  clearBtn.type = 'button';
+  clearBtn.textContent = '✕ Boshqa fayl tanlash';
+  clearBtn.style.display = 'none';
+
   // Analyze button
   const analyzeBtn = document.createElement('button');
   analyzeBtn.className = 'upload-analyze-btn';
-  analyzeBtn.textContent = 'Analyze';
+  analyzeBtn.textContent = 'Tahlil qilish';
   analyzeBtn.disabled = true;
   analyzeBtn.style.marginTop = '12px';
 
@@ -49,12 +56,14 @@ export function mountUploadPanel(root, analysisService) {
   panel.appendChild(fileInput);
   panel.appendChild(dropzone);
   panel.appendChild(previewArea);
+  panel.appendChild(clearBtn);
   panel.appendChild(analyzeBtn);
   panel.appendChild(resultsSection);
 
   // State
   let selectedFile = null;
   let isAnalyzing = false;
+  let objectUrl = null;
 
   // Handle file selection
   function handleFileSelect(file) {
@@ -65,6 +74,7 @@ export function mountUploadPanel(root, analysisService) {
     selectedFile = file;
     dropzone.style.display = 'none';
     previewArea.style.display = 'block';
+    clearBtn.style.display = 'inline-block';
     analyzeBtn.disabled = false;
     resultsSection.style.display = 'none';
     resultsSection.innerHTML = '';
@@ -74,8 +84,9 @@ export function mountUploadPanel(root, analysisService) {
 
     // Show preview based on file type
     if (file.type.startsWith('image/')) {
+      objectUrl = URL.createObjectURL(file);
       const img = document.createElement('img');
-      img.src = URL.createObjectURL(file);
+      img.src = objectUrl;
       img.className = 'upload-preview-img';
       img.style.maxWidth = '100%';
       img.style.height = 'auto';
@@ -99,13 +110,30 @@ export function mountUploadPanel(root, analysisService) {
     }
   }
 
+  // Reset back to the empty upload state
+  function clearSelection() {
+    if (objectUrl) {
+      URL.revokeObjectURL(objectUrl);
+      objectUrl = null;
+    }
+    selectedFile = null;
+    fileInput.value = '';
+    previewArea.innerHTML = '';
+    previewArea.style.display = 'none';
+    clearBtn.style.display = 'none';
+    dropzone.style.display = 'block';
+    analyzeBtn.disabled = true;
+    resultsSection.style.display = 'none';
+    resultsSection.innerHTML = '';
+  }
+
   // Handle analyze button click
   analyzeBtn.addEventListener('click', async () => {
     if (!selectedFile || isAnalyzing) return;
 
     isAnalyzing = true;
     analyzeBtn.disabled = true;
-    analyzeBtn.textContent = 'Analyzing...';
+    analyzeBtn.textContent = 'Tahlil qilinmoqda...';
     resultsSection.style.display = 'none';
     resultsSection.innerHTML = '';
 
@@ -115,7 +143,7 @@ export function mountUploadPanel(root, analysisService) {
 
       isAnalyzing = false;
       analyzeBtn.disabled = false;
-      analyzeBtn.textContent = 'Analyze';
+      analyzeBtn.textContent = 'Tahlil qilish';
 
       // Display results
       resultsSection.innerHTML = '';
@@ -126,7 +154,7 @@ export function mountUploadPanel(root, analysisService) {
         noResultsMsg.style.padding = '16px';
         noResultsMsg.style.textAlign = 'center';
         noResultsMsg.style.color = 'var(--text-muted)';
-        noResultsMsg.textContent = '✓ No issues detected';
+        noResultsMsg.textContent = '✓ Muammo aniqlanmadi';
         resultsSection.appendChild(noResultsMsg);
       } else {
         const resultsList = document.createElement('div');
@@ -163,7 +191,7 @@ export function mountUploadPanel(root, analysisService) {
             <strong style="display: block; color: var(--text-primary); font-size: 12px; margin-bottom: 2px;">
               ${result.label}
             </strong>
-            <span>Confidence: ${result.confidence}%</span>
+            <span>Ishonch darajasi: ${result.confidence}%</span>
           `;
 
           item.appendChild(swatch);
@@ -177,10 +205,16 @@ export function mountUploadPanel(root, analysisService) {
       console.error('Analysis error:', error);
       isAnalyzing = false;
       analyzeBtn.disabled = false;
-      analyzeBtn.textContent = 'Analyze';
-      resultsSection.innerHTML = '<div style="color: #ef4444; padding: 8px;">Error during analysis. Please try again.</div>';
+      analyzeBtn.textContent = 'Tahlil qilish';
+      resultsSection.innerHTML = '<div style="color: #ef4444; padding: 8px;">Tahlil qilishda xatolik yuz berdi. Qaytadan urinib ko\'ring.</div>';
       resultsSection.style.display = 'block';
     }
+  });
+
+  // Clear button handler
+  clearBtn.addEventListener('click', () => {
+    if (isAnalyzing) return;
+    clearSelection();
   });
 
   // File input change handler

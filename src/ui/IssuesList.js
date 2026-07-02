@@ -9,11 +9,11 @@ export function mountIssuesList(root) {
   filterRow.className = 'filter-buttons-row';
 
   const filters = [
-    { id: 'all', label: 'All' },
-    { id: 'pothole', label: 'Pothole' },
-    { id: 'cracked_asphalt', label: 'Cracked Asphalt' },
-    { id: 'road_debris', label: 'Road Debris' },
-    { id: 'streetlight', label: 'Streetlight' },
+    { id: 'all', label: 'Barchasi' },
+    { id: 'pothole', label: 'Yo\'l cho\'kishi' },
+    { id: 'cracked_asphalt', label: 'Yoriq asfalt' },
+    { id: 'road_debris', label: 'Yo\'lda chiqindi' },
+    { id: 'streetlight', label: 'Chiroq nosozligi' },
   ];
 
   let activeFilter = 'all';
@@ -71,7 +71,7 @@ export function mountIssuesList(root) {
 
       // Timestamp (formatted)
       const dateObj = new Date(issue.detectedAt);
-      const timeStr = dateObj.toLocaleString('en-US', {
+      const timeStr = dateObj.toLocaleString('uz-UZ', {
         year: 'numeric',
         month: 'short',
         day: 'numeric',
@@ -86,9 +86,10 @@ export function mountIssuesList(root) {
       const metaRow = document.createElement('div');
       metaRow.className = 'issue-meta-row';
 
+      const SEVERITY_LABELS = { High: 'Yuqori', Medium: 'O\'rta', Low: 'Past' };
       const severityEl = document.createElement('span');
       severityEl.className = `issue-severity severity-${issue.severity.toLowerCase()}`;
-      severityEl.textContent = issue.severity;
+      severityEl.textContent = SEVERITY_LABELS[issue.severity] || issue.severity;
 
       const sourceEl = document.createElement('span');
       sourceEl.className = 'issue-source';

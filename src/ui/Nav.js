@@ -1,8 +1,8 @@
 const PAGES = [
-  { id: 'dashboard', href: 'index.html', label: 'Dashboard' },
-  { id: 'upload', href: 'upload.html', label: 'Upload & Analyze' },
-  { id: 'cameras', href: 'cameras.html', label: 'Cameras' },
-  { id: 'issues', href: 'issues.html', label: 'Detected Issues' },
+  { id: 'dashboard', href: 'index.html', label: 'Boshqaruv paneli' },
+  { id: 'upload', href: 'upload.html', label: 'Yuklash va tahlil' },
+  { id: 'cameras', href: 'cameras.html', label: 'Kameralar' },
+  { id: 'issues', href: 'issues.html', label: 'Aniqlangan muammolar' },
 ];
 
 export function renderNavLinksHtml(activePageId) {
@@ -15,6 +15,9 @@ export function mountTopBar(root, activePageId, title) {
   const el = document.createElement('div');
   el.id = 'top-bar';
   el.className = 'panel';
-  el.innerHTML = `<h1>${title}</h1>${renderNavLinksHtml(activePageId)}`;
+  const homeLink = activePageId === 'dashboard'
+    ? ''
+    : `<a class="home-link" href="index.html" title="Bosh sahifaga qaytish">🏠 Bosh sahifa</a>`;
+  el.innerHTML = `<div class="top-bar-title">${homeLink}<h1>${title}</h1></div>${renderNavLinksHtml(activePageId)}`;
   root.appendChild(el);
 }
