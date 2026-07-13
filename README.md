@@ -1,34 +1,61 @@
-# Andijon Public Transport & Road AI Monitoring — Prototype
+# Andijon Jamoat Transporti va Yo'l AI Monitoring Tizimi — Prototip
 
-Front-end-only 3D dashboard prototype (Vite + Three.js) simulating an AI-based
-monitoring system for city buses and road infrastructure issues.
+Frontend-only 3D dashboard prototipi (Vite + Three.js), shahar avtobuslari va yo'l
+infratuzilmasi muammolarini AI orqali monitoring qilish tizimini simulyatsiya qiladi.
+Interfeys to'liq o'zbek tilida.
 
-## Run it
+## Ishga tushirish
 
 npm install
 npm run dev
 
-Then open the printed local URL in a browser.
+So'ng chiqqan local URL'ni brauzerda oching.
 
-## Run unit tests
+## Testlarni ishga tushirish
 
 npm test
 
-## Pages
+## Sahifalar
 
-- `index.html` — 3D live dashboard (buses, simulated AI detection, glassmorphic stats panels)
-- `upload.html` — upload a photo/video and get mock AI-analyzed road-issue results
-- `cameras.html` — camera monitoring grid (demo feeds; real camera access not yet authorized)
-- `issues.html` — list of detected road issues (type, mock photo, GPS, severity) with type filters
+- `index.html` — 3D live dashboard: bitta 4-yo'l chorrahasi, o'ng qo'l qoidasiga
+  qat'iy rioya qiluvchi avtobuslar, simulyatsiya qilingan AI aniqlash belgilari,
+  live minimap va trend grafigi
+- `upload.html` — rasm/video yuklab, mock AI tahlil natijasini olish ("✕" tugmasi
+  bilan sahifani yangilamasdan qayta fayl tanlash mumkin)
+- `cameras.html` — kamera monitoring gridi (demo oqimlar; real kamera ulanmagan)
+- `issues.html` — aniqlangan yo'l muammolari ro'yxati (turi, mock foto, GPS,
+  darajasi) turi bo'yicha filtrlash bilan
 
-All AI/camera/GPS data on these pages is currently simulated. `src/ai/AnalysisService.js`
-and `src/ai/DetectionService.js` are the two swap points for plugging in a real trained
-model later via an API call — everything else in the UI is built against their existing
-return shapes and won't need to change.
+Barcha sahifalarda bosh sahifaga qaytish uchun tugma/link mavjud.
 
-## Notes
+Ushbu sahifalardagi barcha AI/kamera/GPS ma'lumotlari hozircha simulyatsiya
+qilingan. `src/ai/AnalysisService.js` va `src/ai/DetectionService.js` — kelajakda
+haqiqiy o'qitilgan modelni API orqali ulash uchun ikkita almashtiriladigan nuqta;
+qolgan UI ularning hozirgi qaytarish shakliga mos qurilgan va o'zgarishga muhtoj
+bo'lmaydi.
 
-- AI detection is simulated (`src/ai/DetectionService.js`). It is designed as a single
-  swappable module: replace its internals to call a real model/backend later without
-  touching the rest of the app.
-- No backend, persistence, or business logic is included — this is a visual prototype only.
+## 3D sahna arxitekturasi
+
+- `src/scene/Route.js` — bitta 4-yo'l chorrahasi (`route-a` asosiy prospekt,
+  `route-b` kesishuvchi ko'cha); yopiq CatmullRom egri chizig'i sifatida.
+- `src/scene/Bus.js` — avtobus modeli (oyna, orqa oyna, chiroqlar, g'ildirak,
+  ko'zgu, tomdagi konditsioner, bo'yoq chizig'i) va o'ng qo'l qoidasiga mos
+  lane-offset harakat logikasi (`laneX = x - tangent.z * LANE_OFFSET`).
+- `src/scene/City.js` — asfalt, chiziqlar, zebra o'tish joylari, bordyur,
+  trotuar (plitka chok chiziqlari bilan), fonar ustunlari (nur effekti bilan),
+  daraxtlar, yo'l chok/lyuk detallari va binolar. Kamera tomonidagi (foreground)
+  hudud avtobuslarni ko'rish qulay bo'lishi uchun bino/fonar/daraxtlardan xoli
+  qoldirilgan (`z > 16` chegarasi).
+- `src/ui/Marker3D.js` / `src/ui/RightPanel.js` / `src/ui/LeftPanel.js` — 3D
+  belgilar, live minimap/trend paneli va aniqlanganlar ro'yxati UI qismlari.
+
+Avtobuslar orasidagi minimal masofa va o'ng qo'l qoidasi to'g'riligi har bir
+marshrut/tezlik o'zgarishida Node.js simulyatsiya skripti orqali qayta
+tekshiriladi (loyihaga commit qilinmaydi, faqat vaqtinchalik tekshiruv uchun).
+
+## Eslatmalar
+
+- AI aniqlash simulyatsiya qilingan (`src/ai/DetectionService.js`). Bu yagona
+  almashtiriladigan modul sifatida loyihalashtirilgan: kelajakda haqiqiy
+  model/backend ulash uchun faqat shu faylning ichini o'zgartirish kifoya.
+- Backend, persistence yoki biznes-logika yo'q — bu faqat vizual prototip.
