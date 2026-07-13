@@ -23,6 +23,13 @@ export function createBus({ routeId, speed = 0.03, offset = 0 }) {
   const roofStripMaterial = new MeshStandardMaterial({
     color: 0x38bdf8, roughness: 0.3, emissive: 0x38bdf8, emissiveIntensity: 1.6,
   });
+  const wheelMaterial = new MeshStandardMaterial({ color: 0x161616, roughness: 0.9, metalness: 0.1 });
+  const hubMaterial = new MeshStandardMaterial({ color: 0x8a94a6, roughness: 0.4, metalness: 0.7 });
+  const mirrorMaterial = new MeshStandardMaterial({ color: 0xcbd5e1, roughness: 0.25, metalness: 0.6 });
+  const acUnitMaterial = new MeshStandardMaterial({ color: 0x475169, roughness: 0.7, metalness: 0.2 });
+  const liveryMaterial = new MeshStandardMaterial({
+    color: 0xe8edf5, roughness: 0.35, metalness: 0.1, emissive: 0x38bdf8, emissiveIntensity: 0.12,
+  });
 
   const frontSegment = new Mesh(new BoxGeometry(2.6, 2.2, 5), bodyMaterial);
   frontSegment.position.set(0, 1.1, 2.2);
@@ -57,6 +64,51 @@ export function createBus({ routeId, speed = 0.03, offset = 0 }) {
   const roofStrip = new Mesh(new BoxGeometry(0.35, 0.08, 8.6), roofStripMaterial);
   roofStrip.position.set(0, 2.25, 0.05);
   group.add(roofStrip);
+
+  // A thin light livery band along the waistline — reads as a painted stripe
+  // rather than a flat panel, breaking up the boxy silhouette.
+  const liveryGeometry = new BoxGeometry(0.05, 0.28, 8.8);
+  for (const side of [-1, 1]) {
+    const stripe = new Mesh(liveryGeometry, liveryMaterial);
+    stripe.position.set(side * 1.33, 0.95, 0.05);
+    group.add(stripe);
+  }
+
+  // Roof-mounted AC/equipment box — sits above the light strip near the front,
+  // a common articulated-bus detail that reads well from the elevated camera.
+  const acUnit = new Mesh(new BoxGeometry(0.9, 0.42, 1.1), acUnitMaterial);
+  acUnit.position.set(0, 2.56, 1.6);
+  acUnit.castShadow = true;
+  group.add(acUnit);
+
+  // Door-side wing mirrors flanking the windshield.
+  const mirrorArmGeometry = new BoxGeometry(0.06, 0.06, 0.35);
+  const mirrorHeadGeometry = new BoxGeometry(0.3, 0.38, 0.08);
+  for (const side of [-1, 1]) {
+    const arm = new Mesh(mirrorArmGeometry, mirrorMaterial);
+    arm.position.set(side * 1.42, 1.55, 4.15);
+    group.add(arm);
+    const head = new Mesh(mirrorHeadGeometry, mirrorMaterial);
+    head.position.set(side * 1.58, 1.55, 4.15);
+    group.add(head);
+  }
+
+  // Wheels: dark tyres with a metallic hub, tucked half-under the body edges
+  // so they read as wheels from the side without exposing the flat underside.
+  const tyreGeometry = new CylinderGeometry(0.52, 0.52, 0.34, 18);
+  const hubGeometry = new CylinderGeometry(0.24, 0.24, 0.36, 12);
+  for (const wz of [2.6, -3.1]) {
+    for (const side of [-1, 1]) {
+      const tyre = new Mesh(tyreGeometry, wheelMaterial);
+      tyre.rotation.z = Math.PI / 2;
+      tyre.position.set(side * 1.35, 0.52, wz);
+      group.add(tyre);
+      const hub = new Mesh(hubGeometry, hubMaterial);
+      hub.rotation.z = Math.PI / 2;
+      hub.position.set(side * 1.35, 0.52, wz);
+      group.add(hub);
+    }
+  }
 
   const headlightGeometry = new BoxGeometry(0.35, 0.3, 0.1);
   for (const side of [-1, 1]) {

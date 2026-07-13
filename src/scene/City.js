@@ -122,6 +122,31 @@ function createRoads() {
     group.add(patch);
   }
 
+  // Expansion-joint seams — thin dark strips crossing the asphalt at regular
+  // intervals, breaking up the flat plane without needing any texture image.
+  const seamMat = new MeshStandardMaterial({ color: 0x1a1c24, roughness: 1.0, metalness: 0.0 });
+  for (let z = -66; z <= 66; z += 12) {
+    if (Math.abs(z) < 10) continue;
+    group.add(flatPlane(14, 0.15, seamMat, 0, z, 0.035));
+  }
+  for (let x = -54; x <= 54; x += 12) {
+    if (Math.abs(x) < 10) continue;
+    group.add(flatPlane(0.15, 14, seamMat, x, 0, 0.038));
+  }
+
+  // A manhole cover on the main avenue — a small grounded prop that reads
+  // clearly at the elevated dashboard camera angle.
+  const coverMat = new MeshStandardMaterial({ color: 0x2a2e38, roughness: 0.25, metalness: 0.6 });
+  const coverRimMat = new MeshStandardMaterial({ color: 0x14151a, roughness: 0.9, metalness: 0.1 });
+  const coverRim = new Mesh(new CircleGeometry(0.95, 24), coverRimMat);
+  coverRim.rotation.x = -Math.PI / 2;
+  coverRim.position.set(0, 0.04, -20);
+  group.add(coverRim);
+  const cover = new Mesh(new CircleGeometry(0.78, 24), coverMat);
+  cover.rotation.x = -Math.PI / 2;
+  cover.position.set(0, 0.045, -20);
+  group.add(cover);
+
   return group;
 }
 
