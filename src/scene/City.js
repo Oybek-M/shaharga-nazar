@@ -1,7 +1,8 @@
 import {
   Group, Mesh, BoxGeometry, MeshPhysicalMaterial, MeshStandardMaterial, MeshBasicMaterial,
-  PlaneGeometry, CircleGeometry, BufferGeometry, BufferAttribute,
-  HemisphereLight, DirectionalLight, Color, Fog,
+  PlaneGeometry, CircleGeometry, CylinderGeometry, ConeGeometry,
+  BufferGeometry, BufferAttribute, AdditiveBlending,
+  HemisphereLight, DirectionalLight, PointLight, Color, Fog,
 } from 'three';
 import { ROUTES, createRouteCurve } from './Route.js';
 
@@ -46,6 +47,8 @@ export function createCity(scene) {
 
   scene.add(createRoads());
   scene.add(createRouteLines());
+  scene.add(createSidewalks());
+  scene.add(createStreetFurniture());
   scene.add(createBuildings());
 }
 
@@ -150,6 +153,139 @@ function createRoads() {
   return group;
 }
 
+const CURB_W = 1.4;
+const SIDEWALK_W = 3.2;
+const SIDEWALK_OUTER = ROAD_HALF + CURB_W + SIDEWALK_W;
+
+// Paved sidewalk strips flanking every road arm, with thin tile-seam lines
+// so they read as paving slabs rather than a second flat road surface.
+function createSidewalks() {
+  const group = new Group();
+  const paveMat = new MeshStandardMaterial({ color: 0x565f70, roughness: 0.95 });
+  const seamMat = new MeshStandardMaterial({ color: 0x3d4452, roughness: 1.0 });
+  const center = ROAD_HALF + CURB_W + SIDEWALK_W / 2;
+
+  for (const side of [-1, 1]) {
+    const xc = side * center;
+    group.add(flatPlane(SIDEWALK_W, 63, paveMat, xc, -38.5, 0.004));
+    group.add(flatPlane(SIDEWALK_W, 63, paveMat, xc, 38.5, 0.004));
+    for (let z = -66; z <= 66; z += 4) {
+      if (Math.abs(z) < 11) continue;
+      group.add(flatPlane(SIDEWALK_W, 0.08, seamMat, xc, z, 0.02));
+    }
+
+    const zc = side * center;
+    group.add(flatPlane(48, SIDEWALK_W, paveMat, -31, zc, 0.004));
+    group.add(flatPlane(48, SIDEWALK_W, paveMat, 31, zc, 0.004));
+    for (let x = -54; x <= 54; x += 4) {
+      if (Math.abs(x) < 11) continue;
+      group.add(flatPlane(0.08, SIDEWALK_W, seamMat, x, zc, 0.022));
+    }
+  }
+  return group;
+}
+
+// A street lamp: pole, arm and a warm emissive head sitting over a soft glow
+// pool on the pavement so the night scene reads with real light sources.
+function buildStreetLamp() {
+  const group = new Group();
+  const poleMat = new MeshStandardMaterial({ color: 0x2b303c, roughness: 0.5, metalness: 0.6 });
+  const headMat = new MeshStandardMaterial({
+    color: 0xfff2cf, emissive: new Color(0xffcf7a), emissiveIntensity: 1.4, roughness: 0.4,
+  });
+
+  const pole = new Mesh(new CylinderGeometry(0.09, 0.12, 5.6, 8), poleMat);
+  pole.position.y = 2.8;
+  pole.castShadow = true;
+  group.add(pole);
+
+  const arm = new Mesh(new CylinderGeometry(0.07, 0.07, 1.1, 6), poleMat);
+  arm.rotation.z = Math.PI / 2;
+  arm.position.set(0.55, 5.5, 0);
+  group.add(arm);
+
+  const head = new Mesh(new ConeGeometry(0.32, 0.4, 10), headMat);
+  head.position.set(1.05, 5.32, 0);
+  group.add(head);
+
+  const glow = new Mesh(
+    new CircleGeometry(3.2, 20),
+    new MeshBasicMaterial({ color: 0xffcf7a, transparent: true, opacity: 0.1, blending: AdditiveBlending, depthWrite: false })
+  );
+  glow.rotation.x = -Math.PI / 2;
+  glow.position.set(1.05, 0.03, 0);
+  group.add(glow);
+
+  const light = new PointLight(0xffcf7a, 6, 14, 2);
+  light.position.set(1.05, 5.2, 0);
+  group.add(light);
+
+  return group;
+}
+
+// A simple low-poly tree: trunk + two stacked foliage cones.
+function buildTree(scale) {
+  const group = new Group();
+  const trunkMat = new MeshStandardMaterial({ color: 0x3d2b1f, roughness: 0.9 });
+  const leafMat = new MeshStandardMaterial({ color: 0x1f6f4a, roughness: 0.8 });
+
+  const trunk = new Mesh(new CylinderGeometry(0.14, 0.18, 1.4 * scale, 7), trunkMat);
+  trunk.position.y = 0.7 * scale;
+  trunk.castShadow = true;
+  group.add(trunk);
+
+  const foliageLower = new Mesh(new ConeGeometry(1.1 * scale, 1.8 * scale, 9), leafMat);
+  foliageLower.position.y = 1.9 * scale;
+  foliageLower.castShadow = true;
+  group.add(foliageLower);
+
+  const foliageUpper = new Mesh(new ConeGeometry(0.75 * scale, 1.4 * scale, 9), leafMat);
+  foliageUpper.position.y = 2.7 * scale;
+  foliageUpper.castShadow = true;
+  group.add(foliageUpper);
+
+  return group;
+}
+
+// Lamps and trees along the sidewalks, alternating, with the intersection
+// itself and the near-camera foreground kept clear so nothing blocks the view.
+function createStreetFurniture() {
+  const group = new Group();
+  const edge = SIDEWALK_OUTER + 0.5;
+  let seed = 7;
+  const random = () => {
+    seed = (seed * 9301 + 49297) % 233280;
+    return seed / 233280;
+  };
+
+  const placeAlongZ = (side, zValues) => {
+    zValues.forEach((z, i) => {
+      const item = i % 2 === 0 ? buildStreetLamp() : buildTree(0.8 + random() * 0.4);
+      if (i % 2 === 0) item.rotation.y = side > 0 ? Math.PI : 0;
+      item.position.set(side * edge, 0, z);
+      group.add(item);
+    });
+  };
+  const placeAlongX = (side, xValues) => {
+    xValues.forEach((x, i) => {
+      const item = i % 2 === 0 ? buildStreetLamp() : buildTree(0.8 + random() * 0.4);
+      if (i % 2 === 0) item.rotation.y = (side > 0 ? Math.PI : 0) + Math.PI / 2;
+      item.position.set(x, 0, side * edge);
+      group.add(item);
+    });
+  };
+
+  // Positive z (toward the camera) stays clear past 16, matching the building
+  // foreground exclusion, so lamps/trees never block the intersection view.
+  const zSlots = [-58, -46, -34, -22];
+  const xSlots = [-46, -34, 34, 46];
+  for (const side of [-1, 1]) {
+    placeAlongZ(side, zSlots);
+    placeAlongX(side, xSlots);
+  }
+  return group;
+}
+
 // Flat glowing ribbon following a route curve, offset onto the right-hand lane.
 function buildLaneRibbon(curve, width, laneOffset, y) {
   const segments = 160;
@@ -206,9 +342,10 @@ function createBuildings() {
 
   // Keep towers off both road arms and out of the near-camera foreground so the
   // intersection stays clearly in view.
+  const clear = SIDEWALK_OUTER + 1.5;
   const isBlocked = (x, z) =>
-    (Math.abs(x) < 11 && Math.abs(z) < 82) ||
-    (Math.abs(z) < 11 && Math.abs(x) < 62) ||
+    (Math.abs(x) < clear && Math.abs(z) < 82) ||
+    (Math.abs(z) < clear && Math.abs(x) < 62) ||
     z > 16;
 
   let placed = 0;
