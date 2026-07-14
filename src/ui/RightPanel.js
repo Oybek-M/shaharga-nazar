@@ -12,7 +12,7 @@ export function mountRightPanel(root) {
   el.id = 'right-panel';
   el.className = 'panel';
   el.innerHTML = `
-    <div class="panel-caption">Jonli xarita</div>
+    <div class="panel-caption" id="minimap-caption">Jonli xarita</div>
     <canvas id="minimap" width="${MAP_W}" height="${MAP_H}"></canvas>
     <div class="panel-caption">Muammolar trendi</div>
     <svg id="trend-chart" viewBox="0 0 200 60" preserveAspectRatio="none">
@@ -26,6 +26,10 @@ export function mountRightPanel(root) {
 
   const canvas = el.querySelector('#minimap');
   const ctx = canvas.getContext('2d');
+  const caption = el.querySelector('#minimap-caption');
+  function setCaption(text) {
+    caption.textContent = text;
+  }
 
   function drawMinimap(buses) {
     ctx.clearRect(0, 0, MAP_W, MAP_H);
@@ -64,7 +68,41 @@ export function mountRightPanel(root) {
   }
 
   drawMinimap([]);
-  return { drawMinimap };
+
+  // Same road base, but instead of live bus dots, draws a soft heat blob at
+  // each known issue marker so the operator can see where problems cluster.
+  function drawHeatmap(markers) {
+    ctx.clearRect(0, 0, MAP_W, MAP_H);
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.6)';
+    ctx.fillRect(0, 0, MAP_W, MAP_H);
+
+    ctx.lineWidth = 2;
+    ctx.globalAlpha = 0.3;
+    ctx.strokeStyle = ROUTE_COLORS['route-a'];
+    const [ax1, ay1] = worldToMap(0, -70);
+    const [ax2, ay2] = worldToMap(0, 70);
+    ctx.beginPath();
+    ctx.moveTo(ax1, ay1);
+    ctx.lineTo(ax2, ay2);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+
+    for (const marker of markers) {
+      const [mx, my] = worldToMap(marker.position.x, marker.position.z);
+      const color = `#${marker.type.color.toString(16).padStart(6, '0')}`;
+      const gradient = ctx.createRadialGradient(mx, my, 0, mx, my, 14);
+      gradient.addColorStop(0, color);
+      gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      ctx.globalAlpha = 0.55;
+      ctx.fillStyle = gradient;
+      ctx.beginPath();
+      ctx.arc(mx, my, 14, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+  }
+
+  return { drawMinimap, drawHeatmap, setCaption };
 }
 
 export { ROUTE_COLORS };

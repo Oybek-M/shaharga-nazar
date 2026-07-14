@@ -5,6 +5,7 @@ import { createBus } from './scene/Bus.js';
 import { createPostProcessing } from './scene/PostProcessing.js';
 import { spawnMarker3D } from './ui/Marker3D.js';
 import { createDetectionService } from './ai/DetectionService.js';
+import { MARKERS } from './ai/markers.js';
 import { createStore } from './store.js';
 import { mountLeftPanel } from './ui/LeftPanel.js';
 import { mountRightPanel, ROUTE_COLORS } from './ui/RightPanel.js';
@@ -80,6 +81,13 @@ function init() {
   const rightPanel = mountRightPanel(uiRoot);
   mountBottomLeftPanel(uiRoot, store);
 
+  const MODE_CAPTIONS = {
+    live: 'Jonli xarita',
+    heatmap: 'Issiqlik xaritasi',
+    playback: 'Simulyatsiya (to\'xtatilgan)',
+  };
+  store.subscribe((state) => rightPanel.setCaption(MODE_CAPTIONS[state.mode] || 'Jonli xarita'));
+
   const clock = new Clock();
   let frame = 0;
 
@@ -100,23 +108,32 @@ function init() {
   function animate() {
     const delta = clock.getDelta();
     frame += 1;
+    const mode = store.getState().mode;
 
-    for (const bus of buses) {
-      bus.update(delta);
-      const beamPos = bus.getBeamWorldPosition();
-      const results = detectionService.detect(bus.routeId, beamPos);
-      results.forEach(handleDetection);
+    // Playback mode freezes the buses in place, as if reviewing a paused
+    // recording, instead of continuing the live simulation.
+    if (mode !== 'playback') {
+      for (const bus of buses) {
+        bus.update(delta);
+        const beamPos = bus.getBeamWorldPosition();
+        const results = detectionService.detect(bus.routeId, beamPos);
+        results.forEach(handleDetection);
+      }
     }
 
     // Refresh the minimap a few times a second — no need to redraw every frame.
     if (frame % 5 === 0) {
-      rightPanel.drawMinimap(
-        buses.map((bus) => ({
-          x: bus.object.position.x,
-          z: bus.object.position.z,
-          color: ROUTE_COLORS[bus.routeId] || '#e2e8f0',
-        }))
-      );
+      if (mode === 'heatmap') {
+        rightPanel.drawHeatmap(MARKERS);
+      } else {
+        rightPanel.drawMinimap(
+          buses.map((bus) => ({
+            x: bus.object.position.x,
+            z: bus.object.position.z,
+            color: ROUTE_COLORS[bus.routeId] || '#e2e8f0',
+          }))
+        );
+      }
     }
 
     composer.render();
