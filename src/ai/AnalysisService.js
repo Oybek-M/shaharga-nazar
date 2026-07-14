@@ -22,7 +22,7 @@ export function createAnalysisService({ random = Math.random, wait = defaultWait
     for (let i = 0; i < resultCount; i += 1) {
       const type = ISSUE_POOL[Math.floor(random() * ISSUE_POOL.length)];
       const confidence = Math.round(85 + random() * 14);
-      results.push({ type: type.key, label: type.label, color: type.color, confidence });
+      results.push({ type: type.key, label: type.label, color: type.color, icon: type.icon, confidence });
     }
     return { results };
   }

@@ -292,10 +292,54 @@ body.content-page .panel {
 }
 
 .camera-feed-placeholder {
+  --route-color: #38bdf8;
   width: 100%;
   aspect-ratio: 16 / 9;
   background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
   position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 2px solid var(--route-color);
+}
+
+.camera-feed-icon {
+  font-size: 34px;
+  opacity: 0.5;
+  filter: grayscale(0.3);
+}
+
+.camera-live-dot {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ef4444;
+  box-shadow: 0 0 6px rgba(239, 68, 68, 0.9);
+  animation: camera-live-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes camera-live-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.25; }
+}
+
+.camera-scan-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--route-color), transparent);
+  opacity: 0.6;
+  animation: camera-scan-move 3.2s linear infinite;
+}
+
+@keyframes camera-scan-move {
+  0% { top: 0%; }
+  100% { top: 100%; }
 }
 
 .camera-info {

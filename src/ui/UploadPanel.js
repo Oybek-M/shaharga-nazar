@@ -172,15 +172,18 @@ export function mountUploadPanel(root, analysisService) {
           item.style.borderRadius = '8px';
           item.style.background = 'rgba(255,255,255,0.03)';
 
-          // Color swatch
+          // Icon-tag swatch, matching the detection-bbox style used elsewhere in the app
           const swatch = document.createElement('div');
           swatch.className = 'detection-thumb';
-          swatch.style.width = '48px';
-          swatch.style.height = '32px';
-          swatch.style.borderRadius = '4px';
-          swatch.style.flexShrink = '0';
-          swatch.style.border = '1px solid var(--panel-border)';
-          swatch.style.background = `#${result.color.toString(16).padStart(6, '0')}`;
+          const bbox = document.createElement('span');
+          bbox.className = 'detection-bbox';
+          bbox.style.borderColor = `#${result.color.toString(16).padStart(6, '0')}`;
+          const bboxTag = document.createElement('span');
+          bboxTag.className = 'detection-bbox-tag';
+          bboxTag.style.background = `#${result.color.toString(16).padStart(6, '0')}`;
+          bboxTag.textContent = result.icon || 'AI';
+          bbox.appendChild(bboxTag);
+          swatch.appendChild(bbox);
 
           // Info section
           const info = document.createElement('div');

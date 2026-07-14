@@ -7,7 +7,7 @@ export const MOCK_ISSUES = [
     gps: { lat: 40.7530, lng: 72.3450 },
     detectedAt: '2026-06-30T08:12:00+05:00',
     severity: 'High',
-    source: '1-avtobus — A yo\'nalishi',
+    source: '1-avtobus — Asosiy prospekt',
   },
   {
     id: 'issue-2',
@@ -17,7 +17,7 @@ export const MOCK_ISSUES = [
     gps: { lat: 40.7601, lng: 72.3392 },
     detectedAt: '2026-06-30T10:47:00+05:00',
     severity: 'Medium',
-    source: '2-avtobus — A yo\'nalishi',
+    source: '2-avtobus — Asosiy prospekt',
   },
   {
     id: 'issue-3',
@@ -27,7 +27,7 @@ export const MOCK_ISSUES = [
     gps: { lat: 40.7488, lng: 72.3511 },
     detectedAt: '2026-06-29T16:20:00+05:00',
     severity: 'Low',
-    source: '3-avtobus — B yo\'nalishi',
+    source: '3-avtobus — Asosiy prospekt',
   },
   {
     id: 'issue-4',
@@ -37,6 +37,6 @@ export const MOCK_ISSUES = [
     gps: { lat: 40.7702, lng: 72.3467 },
     detectedAt: '2026-06-29T21:05:00+05:00',
     severity: 'Medium',
-    source: '4-avtobus — C yo\'nalishi',
+    source: '4-avtobus — Asosiy prospekt',
   },
 ];
