@@ -19,7 +19,10 @@ npm test
 
 - `index.html` — 3D live dashboard: bitta 4-yo'l chorrahasi, o'ng qo'l qoidasiga
   qat'iy rioya qiluvchi avtobuslar, simulyatsiya qilingan AI aniqlash belgilari,
-  live minimap va trend grafigi
+  live minimap va trend grafigi. Pastki chap burchakdagi rejim tugmalari
+  funksional: "Jonli rejim" (default), "Issiqlik xaritasi" (minimapda muammo
+  zichligini ko'rsatadi) va "Simulyatsiya ijrosi" (avtobuslarni joyida
+  to'xtatadi)
 - `upload.html` — rasm/video yuklab, mock AI tahlil natijasini olish ("✕" tugmasi
   bilan sahifani yangilamasdan qayta fayl tanlash mumkin)
 - `cameras.html` — kamera monitoring gridi (demo oqimlar; real kamera ulanmagan)
